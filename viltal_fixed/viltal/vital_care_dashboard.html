@@ -1,0 +1,3315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VITAL — Care dashboard</title>
+    <style>
+      :root {
+        --bg: #f5f6f2;
+        --surface: #fff;
+        --surface2: #f0f3ed;
+        --ink: #202a25;
+        --muted: #788179;
+        --line: #e3e8df;
+        --green: #54785d;
+        --green2: #e6eee4;
+        --gold: #d6a75b;
+        --red: #c94242;
+        --redbg: #fff0ee;
+        --shadow: 0 12px 35px #2636290a;
+        --radius: 18px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          15px/1.5 Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      .app {
+        min-height: 100vh;
+        display: flex;
+      }
+      .sidebar {
+        width: 245px;
+        background: #fff;
+        border-right: 1px solid var(--line);
+        padding: 26px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 5;
+      }
+      .brand {
+        display: flex;
+        gap: 11px;
+        align-items: center;
+        padding: 0 10px;
+      }
+      .brand-mark {
+        width: 39px;
+        height: 39px;
+        border-radius: 13px;
+        background: var(--green);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-size: 21px;
+        font-weight: 750;
+      }
+      .brand-name {
+        font-weight: 800;
+        font-size: 20px;
+        letter-spacing: -0.7px;
+      }
+      .brand-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: -3px;
+      }
+      .nav-label {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        color: #9ba39a;
+        font-weight: 800;
+        padding: 0 13px;
+        margin: 4px 0 8px;
+      }
+      .nav {
+        display: grid;
+        gap: 5px;
+      }
+      .nav button {
+        border: 0;
+        background: transparent;
+        color: #667168;
+        text-align: left;
+        padding: 12px 13px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 600;
+        font-size: 13px;
+      }
+      .nav button .ico {
+        width: 20px;
+        text-align: center;
+        font-size: 17px;
+      }
+      .nav button.active {
+        background: var(--green2);
+        color: #34563c;
+      }
+      .nav button:hover:not(.active) {
+        background: #f7f8f5;
+      }
+      .sidebar-bottom {
+        margin-top: auto;
+      }
+      .help-card {
+        background: #f5f7f2;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        padding: 15px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .help-card strong {
+        display: block;
+        color: var(--ink);
+        font-size: 13px;
+        margin: 7px 0 4px;
+      }
+      .main {
+        margin-left: 245px;
+        width: calc(100% - 245px);
+        min-width: 0;
+      }
+      .topbar {
+        height: 78px;
+        background: #ffffffd9;
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 34px;
+        position: sticky;
+        top: 0;
+        z-index: 4;
+      }
+      .crumb {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .crumb b {
+        color: var(--ink);
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .icon-btn {
+        width: 39px;
+        height: 39px;
+        border: 1px solid var(--line);
+        background: white;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        position: relative;
+      }
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--red);
+        position: absolute;
+        right: 8px;
+        top: 7px;
+        border: 1px solid white;
+      }
+      .profile {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-left: 7px;
+      }
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #dce8d8;
+        color: #45664b;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+      .profile-name {
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .profile-role {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .content {
+        max-width: 1500px;
+        margin: auto;
+        padding: 30px 34px 45px;
+      }
+      .page-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 25px;
+      }
+      .eyebrow {
+        font-size: 11px;
+        color: var(--green);
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+      .page-head h1 {
+        font-size: 29px;
+        letter-spacing: -1.1px;
+        margin: 4px 0 5px;
+        font-weight: 750;
+      }
+      .page-head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .btn {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: white;
+        color: var(--ink);
+        padding: 10px 14px;
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn.primary {
+        background: var(--green);
+        border-color: var(--green);
+        color: white;
+      }
+      .btn.soft {
+        background: var(--green2);
+        border-color: transparent;
+        color: #3e6246;
+      }
+      .btn.danger {
+        background: var(--redbg);
+        border-color: #f1c9c5;
+        color: var(--red);
+      }
+      .btn:hover {
+        filter: brightness(0.98);
+        transform: translateY(-1px);
+      }
+      .grid {
+        display: grid;
+        gap: 17px;
+      }
+      .stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-bottom: 19px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+      .stat {
+        padding: 19px 20px;
+        min-height: 132px;
+      }
+      .stat-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .stat-icon {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: var(--surface2);
+        font-size: 16px;
+      }
+      .stat-number {
+        font-size: 30px;
+        font-weight: 780;
+        letter-spacing: -1px;
+        margin: 12px 0 1px;
+      }
+      .stat-note {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .stat-note.good {
+        color: var(--green);
+      }
+      .two-col {
+        grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.9fr);
+        align-items: start;
+      }
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 21px 15px;
+        gap: 12px;
+      }
+      .card-head h2 {
+        font-size: 15px;
+        margin: 0;
+        letter-spacing: -0.25px;
+      }
+      .card-head p {
+        font-size: 11px;
+        color: var(--muted);
+        margin: 3px 0 0;
+      }
+      .text-link {
+        border: 0;
+        background: none;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .patient-list {
+        padding: 0 14px 14px;
+      }
+      .patient-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 8px;
+        border-top: 1px solid #edf0eb;
+      }
+      .patient-photo {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        border-radius: 14px;
+        background: #e8e8dc;
+        display: grid;
+        place-items: center;
+        font-size: 24px;
+        overflow: hidden;
+      }
+      .patient-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .patient-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .patient-info strong {
+        font-size: 13px;
+        display: block;
+      }
+      .patient-info span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 30px;
+        padding: 5px 9px;
+        font-size: 10px;
+        font-weight: 750;
+        white-space: nowrap;
+        background: #eaf4e9;
+        color: #46724d;
+      }
+      .status:before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .status.warn {
+        background: #fff3dc;
+        color: #9b712a;
+      }
+      .status.off {
+        background: #eff1ed;
+        color: #798178;
+      }
+      .row-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .mini-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 9px;
+        padding: 7px 9px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .timeline {
+        padding: 0 22px 20px;
+      }
+      .log-item {
+        display: flex;
+        gap: 13px;
+        position: relative;
+        padding: 13px 0;
+      }
+      .log-item:not(:last-child):after {
+        content: "";
+        position: absolute;
+        left: 14px;
+        top: 41px;
+        bottom: -4px;
+        width: 1px;
+        background: var(--line);
+      }
+      .log-icon {
+        width: 29px;
+        height: 29px;
+        border-radius: 10px;
+        background: var(--surface2);
+        display: grid;
+        place-items: center;
+        z-index: 1;
+        flex-shrink: 0;
+      }
+      .log-icon.alert {
+        background: var(--redbg);
+      }
+      .log-copy {
+        flex: 1;
+      }
+      .log-copy strong {
+        font-size: 12px;
+        display: block;
+      }
+      .log-copy span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .log-time {
+        font-size: 10px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .activity-bars {
+        padding: 0 22px 22px;
+      }
+      .bar-row {
+        display: grid;
+        grid-template-columns: 75px 1fr 33px;
+        gap: 10px;
+        align-items: center;
+        margin: 15px 0;
+        font-size: 11px;
+      }
+      .bar-track {
+        height: 8px;
+        background: #eef1eb;
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 20px;
+        background: #8ca78b;
+      }
+      .bar-fill.gold {
+        background: #d6b06d;
+      }
+      .bar-fill.gray {
+        background: #bbc4b7;
+      }
+      .report-strip {
+        margin-top: 18px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: #edf3e9;
+        border: 1px solid #dce8d8;
+        border-radius: 16px;
+      }
+      .report-symbol {
+        width: 43px;
+        height: 43px;
+        background: #fff;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        font-size: 21px;
+      }
+      .report-text {
+        flex: 1;
+      }
+      .report-text strong {
+        font-size: 13px;
+      }
+      .report-text p {
+        margin: 3px 0 0;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .section {
+        display: none;
+      }
+      .section.active {
+        display: block;
+      }
+      .empty {
+        text-align: center;
+        padding: 38px 20px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .empty .empty-icon {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+      .patient-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .patient-card {
+        padding: 19px;
+      }
+      .patient-card-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .patient-card .patient-photo {
+        width: 58px;
+        height: 58px;
+        flex-basis: 58px;
+      }
+      .patient-card h3 {
+        font-size: 14px;
+        margin: 0 0 2px;
+      }
+      .patient-card p {
+        font-size: 11px;
+        color: var(--muted);
+        margin: 0;
+      }
+      .patient-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 18px 0;
+        padding: 14px 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .patient-meta span {
+        font-size: 10px;
+        color: var(--muted);
+        display: block;
+      }
+      .patient-meta strong {
+        font-size: 12px;
+      }
+      .patient-card-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .patient-card-actions .btn {
+        flex: 1;
+        padding: 9px 6px;
+      }
+      .surv-layout {
+        grid-template-columns: minmax(0, 1.7fr) minmax(260px, 0.8fr);
+      }
+      .camera {
+        background: #202621;
+        border-radius: 17px;
+        overflow: hidden;
+        min-height: 385px;
+        color: #fff;
+        position: relative;
+      }
+      .camera-top {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        top: 17px;
+        display: flex;
+        justify-content: space-between;
+        z-index: 1;
+      }
+      .live-pill {
+        background: #c3443f;
+        color: white;
+        border-radius: 7px;
+        padding: 5px 8px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+      }
+      .camera-time {
+        font-size: 11px;
+        background: #0008;
+        padding: 5px 8px;
+        border-radius: 7px;
+      }
+      .camera-scene {
+        height: 385px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+        background: radial-gradient(
+          ellipse at 50% 75%,
+          #475247 0%,
+          #2e362e 34%,
+          #202621 72%
+        );
+        position: relative;
+      }
+      .camera-scene:before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 8%;
+        right: 8%;
+        height: 43%;
+        border: 1px solid #ffffff12;
+        border-bottom: 0;
+        background:
+          linear-gradient(90deg, #ffffff05 1px, transparent 1px),
+          linear-gradient(#ffffff05 1px, transparent 1px);
+        background-size: 45px 45px;
+        transform: perspective(220px) rotateX(12deg);
+        transform-origin: bottom;
+      }
+      .camera-placeholder {
+        width: 84px;
+        height: 84px;
+        border: 1px solid #ffffff28;
+        background: #ffffff0a;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 35px;
+        z-index: 1;
+      }
+      .camera-scene strong {
+        font-size: 14px;
+        z-index: 1;
+      }
+      .camera-scene span {
+        font-size: 11px;
+        color: #bac4b9;
+        z-index: 1;
+      }
+      .camera-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 17px;
+        background: #171c18;
+        font-size: 11px;
+        color: #d7ddd5;
+      }
+      .camera-controls {
+        display: flex;
+        gap: 7px;
+      }
+      .cam-control {
+        border: 1px solid #ffffff20;
+        color: #fff;
+        background: #ffffff0b;
+        padding: 7px 10px;
+        border-radius: 8px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+      }
+      .cam-control:hover {
+        background: #ffffff1f;
+        border-color: #ffffff44;
+      }
+      .night-vision {
+        filter: sepia(100%) hue-rotate(85deg) saturate(260%) contrast(1.2) brightness(1.1);
+      }
+      .camera-scene video,
+      .camera-scene img,
+      .camera-scene canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .info-stack {
+        display: grid;
+        gap: 15px;
+      }
+      .info-card {
+        padding: 17px;
+      }
+      .info-card h3 {
+        font-size: 13px;
+        margin: 0 0 13px;
+      }
+      .info-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 9px 0;
+        border-top: 1px solid var(--line);
+        font-size: 11px;
+      }
+      .info-line span {
+        color: var(--muted);
+      }
+      .info-line strong {
+        font-weight: 700;
+        text-align: right;
+      }
+      .safe-banner {
+        background: #eaf3e7;
+        border: 1px solid #dce8d7;
+        border-radius: 13px;
+        padding: 13px;
+        font-size: 11px;
+        color: #41674a;
+        display: flex;
+        gap: 9px;
+      }
+      .filters {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .filter {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: white;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .filter.active {
+        background: var(--green2);
+        color: #3f6246;
+        border-color: #d5e4d1;
+      }
+      .log-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .log-table th {
+        text-align: left;
+        background: #f8f9f6;
+        color: #8a9389;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        padding: 13px 16px;
+        font-weight: 800;
+      }
+      .log-table td {
+        padding: 15px 16px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+      }
+      .log-table td small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        margin-top: 3px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      .report-card {
+        padding: 19px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .pdf-icon {
+        width: 47px;
+        height: 52px;
+        border-radius: 10px;
+        background: #f8e9e5;
+        color: #b24b40;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        font-weight: 900;
+      }
+      .report-details {
+        flex: 1;
+        min-width: 0;
+      }
+      .report-details strong {
+        font-size: 13px;
+        display: block;
+      }
+      .report-details span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .report-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .field.full {
+        grid-column: 1/-1;
+      }
+      .field label {
+        font-size: 11px;
+        font-weight: 750;
+        color: #5e695f;
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        border: 1px solid #dfe5db;
+        background: #fcfdfb;
+        border-radius: 10px;
+        padding: 11px 12px;
+        font-size: 12px;
+        color: var(--ink);
+        outline: none;
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        border-color: #8fa990;
+        box-shadow: 0 0 0 3px #e8f0e5;
+      }
+      .field textarea {
+        resize: vertical;
+        min-height: 70px;
+      }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: #1d261f75;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 20;
+      }
+      .modal-backdrop.open {
+        display: flex;
+      }
+      .modal {
+        width: min(620px, 100%);
+        max-height: 90vh;
+        overflow: auto;
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 25px 80px #0002;
+      }
+      .modal-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .modal-head h2 {
+        font-size: 20px;
+        margin: 0;
+      }
+      .modal-head p {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 4px 0;
+      }
+      .close {
+        border: 0;
+        background: #f2f4ef;
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        font-size: 19px;
+      }
+      .modal-foot {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        margin-top: 20px;
+      }
+      .toast {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        background: #25362a;
+        color: #fff;
+        padding: 13px 17px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        font-size: 12px;
+        z-index: 30;
+        display: none;
+        max-width: 340px;
+      }
+      .toast.show {
+        display: block;
+        animation: up 0.25s ease;
+      }
+      @keyframes up {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fall-overlay {
+        position: fixed;
+        inset: 0;
+        background: #a91f26f2;
+        z-index: 50;
+        display: none;
+        color: white;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        text-align: center;
+      }
+      .fall-overlay.show {
+        display: flex;
+        animation: alarm 0.8s infinite alternate;
+      }
+      @keyframes alarm {
+        from {
+          background: #9f2227f0;
+        }
+        to {
+          background: #d33b3bf5;
+        }
+      }
+      .fall-box {
+        max-width: 540px;
+      }
+      .fall-symbol {
+        font-size: 64px;
+      }
+      .fall-box h2 {
+        font-size: 35px;
+        letter-spacing: -1px;
+        margin: 8px 0;
+      }
+      .fall-box p {
+        color: #ffe2df;
+        line-height: 1.7;
+      }
+      .fall-actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+      }
+      .fall-actions .btn {
+        border: 0;
+      }
+      .fall-actions .btn.primary {
+        background: white;
+        color: #a91f26;
+      }
+      .fall-actions .btn.soft {
+        background: #7c171d;
+        color: white;
+      }
+      .login-screen {
+        position: fixed;
+        inset: 0;
+        background: var(--bg);
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .login-screen.show {
+        display: flex;
+      }
+      .login-card {
+        width: min(420px, 100%);
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 35px;
+        box-shadow: var(--shadow);
+      }
+      .login-card .brand {
+        padding: 0;
+        margin-bottom: 27px;
+      }
+      .login-card h1 {
+        font-size: 25px;
+        letter-spacing: -0.8px;
+        margin: 0 0 7px;
+      }
+      .login-card > p {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 0 0 23px;
+      }
+      .google-btn {
+        width: 100%;
+        margin-top: 14px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 11px;
+        font-weight: 750;
+        font-size: 12px;
+      }
+      .fine-print {
+        font-size: 10px;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 16px;
+      }
+      .mobile-menu {
+        display: none;
+      }
+      .admin-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .setting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+      }
+      .setting-row span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .toggle {
+        accent-color: var(--green);
+        width: 17px;
+        height: 17px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      @media (max-width: 1100px) {
+        .sidebar {
+          width: 210px;
+        }
+        .main {
+          margin-left: 210px;
+          width: calc(100% - 210px);
+        }
+        .content {
+          padding: 25px 22px;
+        }
+        .topbar {
+          padding: 0 22px;
+        }
+        .stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .patient-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+        .surv-layout {
+          grid-template-columns: 1fr;
+        }
+        .info-stack {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 700px) {
+        .sidebar {
+          width: 255px;
+          transform: translateX(-100%);
+          transition: transform 0.25s;
+          box-shadow: 10px 0 40px #0000000b;
+        }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+        .main {
+          margin-left: 0;
+          width: 100%;
+        }
+        .topbar {
+          height: 65px;
+          padding: 0 16px;
+        }
+        .mobile-menu {
+          display: grid;
+        }
+        .profile-name,
+        .profile-role {
+          display: none;
+        }
+        .content {
+          padding: 23px 15px 35px;
+        }
+        .page-head {
+          align-items: flex-start;
+        }
+        .page-head h1 {
+          font-size: 25px;
+        }
+        .page-head .btn {
+          padding: 10px;
+          font-size: 11px;
+        }
+        .stats {
+          gap: 10px;
+        }
+        .stat {
+          padding: 14px;
+          min-height: 120px;
+        }
+        .stat-number {
+          font-size: 26px;
+        }
+        .patient-grid,
+        .report-grid,
+        .admin-grid {
+          grid-template-columns: 1fr;
+        }
+        .info-stack {
+          grid-template-columns: 1fr;
+        }
+        .camera,
+        .camera-scene {
+          min-height: 300px;
+          height: 300px;
+        }
+        .camera-footer {
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .field.full {
+          grid-column: auto;
+        }
+        .table-wrap {
+          margin: 0 -4px;
+        }
+        .log-table th,
+        .log-table td {
+          padding: 12px 10px;
+        }
+        .report-card {
+          flex-wrap: wrap;
+        }
+        .report-details {
+          min-width: calc(100% - 70px);
+        }
+        .report-card > .btn {
+          width: 100%;
+        }
+        .row-actions {
+          display: none;
+        }
+        .page-head p {
+          max-width: 260px;
+        }
+        .two-col {
+          gap: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app" id="app">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark">✳</div>
+          <div>
+            <div class="brand-name">VITAL</div>
+            <div class="brand-sub">care, with confidence</div>
+          </div>
+        </div>
+        <div>
+          <div class="nav-label">WORKSPACE</div>
+          <nav class="nav">
+            <button class="active" data-page="overview">
+              <span class="ico">▦</span>Overview</button
+            ><button data-page="patients">
+              <span class="ico">♙</span>My patients</button
+            ><button data-page="surveillance">
+              <span class="ico">◉</span>Surveillance</button
+            ><button data-page="activity">
+              <span class="ico">☷</span>Activity logs</button
+            ><button data-page="reports">
+              <span class="ico">▤</span>Reports
+            </button>
+          </nav>
+        </div>
+        <div>
+          <div class="nav-label">MANAGEMENT</div>
+          <nav class="nav">
+            <button data-page="admin">
+              <span class="ico">⚙</span>Admin panel
+            </button>
+          </nav>
+        </div>
+        <div class="sidebar-bottom">
+          <div class="help-card">
+            ♡<strong>Care starts with noticing.</strong>VITAL helps you stay
+            connected to the moments that matter.
+            <div style="margin-top: 12px; color: #5a7a5e; font-weight: 750">
+              <span id="systemState">● System ready</span>
+            </div>
+          </div>
+          <nav class="nav" style="margin-top: 12px">
+            <button id="logoutBtn"><span class="ico">↪</span>Log out</button>
+          </nav>
+        </div>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <button class="icon-btn mobile-menu" id="menuBtn">☰</button>
+            <div class="crumb">
+              Workspace <span style="margin: 0 7px; color: #b0b7ae">/</span>
+              <b id="crumbName">Overview</b>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button class="icon-btn" id="alertsBtn" title="Alerts">
+              ♧<span class="dot" id="alertDot"></span>
+            </button>
+            <div class="profile">
+              <div class="avatar" id="userAvatar">A</div>
+              <div>
+                <div class="profile-name" id="userName">Care team</div>
+                <div class="profile-role">Caregiver account</div>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div class="content">
+          <section class="section active" id="page-overview">
+            <div class="page-head">
+              <div>
+                <div class="eyebrow" id="todayLabel">YOUR CARE SPACE</div>
+                <h1>
+                  Good morning<span id="greetingComma">,</span>
+                  <span id="firstName">there</span>.
+                </h1>
+                <p>Here’s a calm overview of the people in your care today.</p>
+              </div>
+              <button class="btn primary" id="addPatientTop">
+                ＋ Add a patient
+              </button>
+            </div>
+            <div class="grid stats">
+              <div class="card stat">
+                <div class="stat-top">
+                  Patients in care <span class="stat-icon">♙</span>
+                </div>
+                <div class="stat-number" id="statPatients">1</div>
+                <div class="stat-note">Profiles in your workspace</div>
+              </div>
+              <div class="card stat">
+                <div class="stat-top">
+                  Currently monitored <span class="stat-icon">◉</span>
+                </div>
+                <div class="stat-number" id="statMonitored">1</div>
+                <div class="stat-note good" id="monitoredNote">● Camera status available</div>
+              </div>
+              <div class="card stat">
+                <div class="stat-top">
+                  Activities today <span class="stat-icon">⌁</span>
+                </div>
+                <div class="stat-number" id="statActivities">12</div>
+                <div class="stat-note">Across all patient logs</div>
+              </div>
+              <div class="card stat">
+                <div class="stat-top">
+                  Needs attention <span class="stat-icon">♡</span>
+                </div>
+                <div class="stat-number" id="statAlerts">0</div>
+                <div class="stat-note good" id="alertNote">
+                  No active alerts right now
+                </div>
+              </div>
+            </div>
+            <div class="grid two-col">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>People in your care</h2>
+                    <p>Quick access to patient profiles and surveillance</p>
+                  </div>
+                  <button class="text-link" data-goto="patients">
+                    View all →
+                  </button>
+                </div>
+                <div class="patient-list" id="overviewPatients"></div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Recent activity</h2>
+                    <p>A snapshot of today’s recorded moments</p>
+                  </div>
+                  <button class="text-link" data-goto="activity">
+                    View logs →
+                  </button>
+                </div>
+                <div class="timeline" id="overviewTimeline"></div>
+              </div>
+            </div>
+            <div class="report-strip">
+              <div class="report-symbol">▤</div>
+              <div class="report-text">
+                <strong>Your daily care summary</strong>
+                <p>
+                  Review activity and prepare a shareable daily report for a
+                  patient.
+                </p>
+              </div>
+              <button class="btn soft" id="quickReport">
+                Generate report ↗
+              </button>
+            </div>
+          </section>
+          <section class="section" id="page-patients">
+            <div class="page-head">
+              <div>
+                <div class="eyebrow">CARE DIRECTORY</div>
+                <h1>My patients</h1>
+                <p>Keep essential details and care access in one place.</p>
+              </div>
+              <button class="btn primary" id="addPatientPage">
+                ＋ Add a patient
+              </button>
+            </div>
+            <div class="grid patient-grid" id="patientGrid"></div>
+          </section>
+          <section class="section" id="page-surveillance">
+            <div class="page-head">
+              <div>
+                <div class="eyebrow">LIVE CARE VIEW</div>
+                <h1>Surveillance</h1>
+                <p>Check the camera view and latest activity status.</p>
+              </div>
+              <select
+                id="survPatient"
+                class="btn"
+                style="max-width: 210px"
+              ></select>
+            </div>
+            <div class="grid surv-layout">
+              <div class="card" style="overflow: hidden">
+                <div class="camera">
+                  <div class="camera-top">
+                    <div style="display:flex;gap:7px;align-items:center">
+                      <span class="live-pill" id="camLivePill">● LIVE FEED</span>
+                      <span class="camera-time" id="camResolution">HD 1080P 15FPS</span>
+                    </div>
+                    <span class="camera-time" id="camTime">--:--:--</span>
+                  </div>
+                  <div class="camera-scene" id="camScene">
+                    <!-- Live MJPEG Stream -->
+                    <img id="camLiveStream" alt="Camera Stream" style="z-index:1; display:block;" />
+                    <!-- Local Browser Webcam Video element -->
+                    <video id="camWebcamVideo" autoplay playsinline muted style="z-index:2; display:none;"></video>
+                    <!-- Fallback Animated Canvas for instant zero-latency visual preview -->
+                    <canvas id="camCanvas" width="640" height="360" style="z-index:0; display:block;"></canvas>
+                    <!-- Captured Snapshot Image Preview overlay -->
+                    <img id="camSnapshotImg" style="display:none; z-index:3;" />
+                  </div>
+                </div>
+                <div class="camera-footer">
+                  <span
+                    >⌕ <span id="camPatientName">Selected patient</span> · Room
+                    camera</span
+                  >
+                  <div class="camera-controls">
+                    <button class="cam-control" id="webcamToggleBtn" title="Use computer webcam">
+                      📹 Webcam
+                    </button>
+                    <button class="cam-control" id="nightVisionBtn" title="Toggle night-vision filter">
+                      ◐ Night vision
+                    </button>
+                    <button class="cam-control" id="snapshotBtn" title="Save snapshot to disk">
+                      ▣ Snapshot
+                    </button>
+                    <button class="cam-control" id="demoFallBtn" title="Trigger simulated fall alert">
+                      ⚠ Test fall alert
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="info-stack">
+                <div class="card info-card">
+                  <h3>Current status</h3>
+                  <div class="safe-banner" id="safeBanner">
+                    ✓
+                    <span
+                      ><strong>All clear</strong><br />
+                      No fall alert is active.</span
+                    >
+                  </div>
+                  <div class="info-line">
+                    <span>Detected activity</span
+                    ><strong id="detectedActivity">Resting</strong>
+                  </div>
+                  <div class="info-line">
+                    <span>Last update</span
+                    ><strong id="lastUpdate">Just now</strong>
+                  </div>
+                  <div class="info-line">
+                    <span>Monitoring</span
+                    ><strong style="color: var(--green)" id="monState">● Ready</strong>
+                  </div>
+                </div>
+                <div class="card info-card">
+                  <h3>Patient at a glance</h3>
+                  <div class="info-line">
+                    <span>Age / gender</span><strong id="survAge">—</strong>
+                  </div>
+                  <div class="info-line">
+                    <span>Blood type</span><strong id="survBlood">—</strong>
+                  </div>
+                  <div class="info-line">
+                    <span>Emergency contact</span
+                    ><strong id="survPhone">—</strong>
+                  </div>
+                  <div class="info-line">
+                    <span>Medical notes</span
+                    ><strong id="survMedical">None added</strong>
+                  </div>
+                </div>
+                <div class="card info-card">
+                  <h3>Alert delivery</h3>
+                  <p
+                    id="smsNote"
+                    style="
+                      font-size: 11px;
+                      color: var(--muted);
+                      margin: 0 0 10px;
+                    "
+                  >
+                    Fall alerts appear on this dashboard instantly. SMS to the
+                    patient's contact number needs a messaging service on the server.
+                  </p>
+                  <button class="btn" style="width: 100%" data-goto="admin">
+                    Review alert settings →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="section" id="page-activity">
+            <div class="page-head">
+              <div>
+                <div class="eyebrow">DAILY OBSERVATIONS</div>
+                <h1>Activity logs</h1>
+                <p>Browse detected activities and review recent changes.</p>
+              </div>
+              <button class="btn" id="activityExport">↓ Export logs</button>
+            </div>
+            <div class="card">
+              <div class="card-head" style="flex-wrap: wrap">
+                <div>
+                  <h2>Recorded timeline</h2>
+                  <p>Logs are grouped by the day they occurred.</p>
+                </div>
+                <div class="filters" id="dayFilters">
+                  <button class="filter active" data-day="0">Today</button
+                  ><button class="filter" data-day="1">Yesterday</button
+                  ><button class="filter" data-day="2">2 days ago</button
+                  ><button class="filter" data-day="3">3 days ago</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="log-table">
+                  <thead>
+                    <tr>
+                      <th>Activity</th>
+                      <th>Patient</th>
+                      <th>Time</th>
+                      <th>Duration</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="logTableBody"></tbody>
+                </table>
+              </div>
+              <div class="empty hidden" id="emptyLogs">
+                No activity recorded for this day.
+              </div>
+            </div>
+          </section>
+          <section class="section" id="page-reports">
+            <div class="page-head">
+              <div>
+                <div class="eyebrow">CARE DOCUMENTATION</div>
+                <h1>Reports</h1>
+                <p>Generate a daily summary to review or save as a PDF.</p>
+              </div>
+              <button class="btn primary" id="generateReportPage">
+                ＋ Generate report
+              </button>
+            </div>
+            <div class="grid report-grid" id="reportList"></div>
+            <div class="card" style="margin-top: 18px; padding: 20px">
+              <h2 style="font-size: 14px; margin: 0 0 7px">
+                About daily reports
+              </h2>
+              <p
+                style="
+                  font-size: 12px;
+                  color: var(--muted);
+                  margin: 0;
+                  max-width: 760px;
+                "
+              >
+                A report can include patient details, a timeline of detected
+                activities, alert events, and a brief summary. In this frontend
+                prototype, use “Save as PDF” to open the print dialog and choose
+                “Save to PDF”. Automatic overnight report generation requires a
+                backend scheduler.
+              </p>
+            </div>
+          </section>
+          <section class="section" id="page-admin">
+            <div class="page-head">
+              <div>
+                <div class="eyebrow">WORKSPACE CONTROLS</div>
+                <h1>Admin panel</h1>
+                <p>
+                  Manage your account, alert preferences and workspace setup.
+                </p>
+              </div>
+            </div>
+            <div class="grid admin-grid">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Account details</h2>
+                    <p>Your caregiver profile</p>
+                  </div>
+                  <span class="stat-icon">♙</span>
+                </div>
+                <div style="padding: 0 20px 20px">
+                  <div class="field" style="margin-bottom: 13px">
+                    <label>Display name</label
+                    ><input id="adminName" placeholder="Your name" />
+                  </div>
+                  <div class="field">
+                    <label>Email address</label
+                    ><input
+                      id="adminEmail"
+                      type="email"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  <button
+                    class="btn primary"
+                    style="margin-top: 15px"
+                    id="saveAccount"
+                  >
+                    Save details
+                  </button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Alert preferences</h2>
+                    <p>Choose how the interface should respond</p>
+                  </div>
+                  <span class="stat-icon">♧</span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <strong>Fall alert banner</strong
+                    ><span>Show a full-screen alert when a fall is detected</span>
+                  </div>
+                  <input class="toggle" type="checkbox" id="prefFall" checked />
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <strong>Sound notifications</strong
+                    ><span>Interface alert sound preference</span>
+                  </div>
+                  <input class="toggle" type="checkbox" id="prefSound" />
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <strong>SMS notifications</strong
+                    ><span>Requires a connected messaging service</span>
+                  </div>
+                  <input class="toggle" type="checkbox" id="prefSms" />
+                </div>
+                <div style="padding: 16px 20px">
+                  <button class="btn primary" id="savePrefs">
+                    Save preferences
+                  </button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Workspace overview</h2>
+                    <p>Quick setup summary</p>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <strong>Patient profiles</strong
+                    ><span id="adminPatientCount">0 profiles added</span>
+                  </div>
+                  <button class="text-link" data-goto="patients">
+                    Manage →
+                  </button>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <strong>Camera connection</strong
+                    ><span id="adminCamNote">Live MJPEG stream &amp; browser webcam supported</span>
+                  </div>
+                  <span class="status" id="adminCamStatus">● Active</span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <strong>Daily report storage</strong
+                    ><span id="adminDbNote">Persistent database &amp; PDF export</span>
+                  </div>
+                  <span class="status" id="adminDbStatus">● Ready</span>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h2>Privacy & safety</h2>
+                    <p>Keep patient information protected</p>
+                  </div>
+                </div>
+                <div
+                  style="
+                    padding: 0 20px 20px;
+                    font-size: 12px;
+                    color: var(--muted);
+                    line-height: 1.8;
+                  "
+                >
+                  Patient data is stored in the backend database (backend/vital.db).
+                  Do not use real medical details until stronger authentication,
+                  access controls, encryption, and appropriate consent
+                  are in place. Fall detection should be tested and validated
+                  before being used for real-world care.
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <div class="modal-backdrop" id="patientModal">
+      <div class="modal">
+        <div class="modal-head">
+          <div>
+            <h2>Add a patient</h2>
+            <p>
+              Enter the details that help your care team respond confidently.
+            </p>
+          </div>
+          <button class="close" id="closeModal">×</button>
+        </div>
+        <form id="patientForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="pName">Full name *</label
+              ><input id="pName" required placeholder="e.g. Meera Sharma" />
+            </div>
+            <div class="field">
+              <label for="pPhoto">Profile photo</label
+              ><input id="pPhoto" type="file" accept="image/*" />
+            </div>
+            <div class="field">
+              <label for="pAge">Age *</label
+              ><input
+                id="pAge"
+                type="number"
+                min="1"
+                max="120"
+                required
+                placeholder="72"
+              />
+            </div>
+            <div class="field">
+              <label for="pGender">Gender</label
+              ><select id="pGender">
+                <option value="Not specified">Prefer not to say</option>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pPhone">Caretaker phone *</label
+              ><input
+                id="pPhone"
+                type="tel"
+                required
+                placeholder="+91 98765 43210"
+              />
+            </div>
+            <div class="field">
+              <label for="pBlood">Blood type</label
+              ><select id="pBlood">
+                <option>Not specified</option>
+                <option>A+</option>
+                <option>A−</option>
+                <option>B+</option>
+                <option>B−</option>
+                <option>AB+</option>
+                <option>AB−</option>
+                <option>O+</option>
+                <option>O−</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pHeight">Height (cm)</label
+              ><input id="pHeight" type="number" min="1" placeholder="160" />
+            </div>
+            <div class="field">
+              <label for="pWeight">Weight (kg)</label
+              ><input id="pWeight" type="number" min="1" placeholder="58" />
+            </div>
+            <div class="field full">
+              <label for="pDiseases">Previous diseases / medical notes</label
+              ><textarea
+                id="pDiseases"
+                placeholder="Add relevant medical history, allergies or care notes"
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn" type="button" id="cancelPatient">Cancel</button
+            ><button class="btn primary" type="submit">
+              Save patient profile
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="reportModal">
+      <div class="modal">
+        <div class="modal-head">
+          <div>
+            <h2>Generate daily report</h2>
+            <p>Choose a patient and date for the report.</p>
+          </div>
+          <button class="close" id="closeReport">×</button>
+        </div>
+        <div class="form-grid">
+          <div class="field full">
+            <label>Patient</label
+            ><select id="reportPatient"></select>
+          </div>
+          <div class="field full">
+            <label>Report date</label><input id="reportDate" type="date" />
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" id="cancelReport">Cancel</button
+          ><button class="btn primary" id="makeReport">Create report ↗</button>
+        </div>
+      </div>
+    </div>
+    <div class="fall-overlay" id="fallOverlay">
+      <div class="fall-box">
+        <div class="fall-symbol">⚠</div>
+        <div style="font-size: 12px; letter-spacing: 2px; font-weight: 900">
+          VITAL EMERGENCY ALERT
+        </div>
+        <h2>Fall detected</h2>
+        <p id="fallDescription">
+          A possible fall has been detected. Please check on the patient
+          immediately.
+        </p>
+        <div
+          style="
+            background: #ffffff17;
+            border: 1px solid #ffffff40;
+            border-radius: 13px;
+            padding: 15px;
+            margin-top: 18px;
+            text-align: left;
+          "
+        >
+          <div style="font-size: 10px; color: #ffd8d5; letter-spacing: 1px">
+            CARETAKER NOTIFICATION
+          </div>
+          <strong id="fallPhone" style="display: block; margin-top: 4px"
+            >Phone number not available</strong
+          ><span style="font-size: 11px; color: #ffe3e0" id="fallSmsNote"
+            >SMS delivery is not configured on the server.</span
+          >
+        </div>
+        <div class="fall-actions">
+          <button class="btn primary" id="ackFall">✓ Acknowledge alert</button
+          ><button class="btn soft" id="dismissFall">Dismiss</button>
+        </div>
+      </div>
+    </div>
+    <div class="login-screen" id="loginScreen">
+      <div class="login-card">
+        <div class="brand">
+          <div class="brand-mark">✳</div>
+          <div>
+            <div class="brand-name">VITAL</div>
+            <div class="brand-sub">care, with confidence</div>
+          </div>
+        </div>
+        <h1>A little more peace of mind.</h1>
+        <p>
+          Sign in to your care workspace and stay close to the people who
+          matter.
+        </p>
+        <div class="field">
+          <label>Email address</label
+          ><input
+            type="email"
+            id="loginEmail"
+            placeholder="you@example.com"
+            value="caregiver@example.com"
+          />
+        </div>
+        <div class="field" style="margin-top: 11px">
+          <label>Password (optional for quick demo)</label
+          ><input
+            type="password"
+            id="loginPassword"
+            placeholder="password123"
+            value="password123"
+          />
+        </div>
+        <button class="btn primary" id="passwordLogin" style="width: 100%; margin-top: 14px; padding: 12px; font-size: 13px;">
+          Sign in to Care Workspace
+        </button>
+        <button class="google-btn" id="googleLogin" style="margin-top: 8px">
+          🌐 &nbsp; Quick demo sign-in
+        </button>
+        <div class="fine-print">
+          Instant caregiver session backed by persistent SQLite database.
+        </div>
+      </div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script>
+      const $ = (s) => document.querySelector(s),
+        $$ = (s) => [...document.querySelectorAll(s)];
+      const today = new Date();
+      const dateKey = (d) => {
+        let x = new Date(d);
+        return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+      };
+      const fmtDate = (d) =>
+        new Date(d + "T12:00:00").toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+      const fmtTime = (iso) =>
+        new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+      // local-day boundaries as ISO timestamps (the backend stores UTC)
+      const rangeOfDate = (str) => {
+        const a = new Date(str + "T00:00:00"),
+          b = new Date(a);
+        b.setDate(b.getDate() + 1);
+        return { start: a.toISOString(), end: b.toISOString() };
+      };
+      const dayRange = (offset) => {
+        const d = new Date();
+        d.setDate(d.getDate() - offset);
+        return rangeOfDate(dateKey(d));
+      };
+      const fmtDuration = (l) => {
+        if (l.ongoing) return "Ongoing";
+        const s = l.duration_seconds || 0;
+        if (s < 60) return s + " sec";
+        if (s < 3600) return Math.round(s / 60) + " min";
+        return Math.floor(s / 3600) + " h " + Math.round((s % 3600) / 60) + " min";
+      };
+      // backend activity record -> what the tables/report show
+      const normLog = (l) => ({
+        ...l,
+        patientId: l.elder_id,
+        patientName: l.patient_name,
+        time: fmtTime(l.start_time),
+        date: dateKey(l.start_time),
+        duration: fmtDuration(l),
+        status: l.status === "Fall detected" ? "Fall detected" : l.ongoing ? "In progress" : "Recorded",
+        detail:
+          l.activity === "Falling"
+            ? "Possible fall detected"
+            : `Detected by camera · ${Math.round((l.confidence || 0) * 100)}% confidence`,
+      });
+      const ACTIVITY_ICON = { Walking: "↗", Standing: "▲", Sitting: "◷", Sleeping: "☾" };
+      const timeNow = () =>
+        new Date().toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      const escapeHtml = (s) =>
+        String(s ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+
+      // Centralized API Communication Layer
+      const API_BASE = window.location.origin.includes(":8000") ? window.location.origin : "http://127.0.0.1:8000";
+      const getToken = () => localStorage.getItem("vital_token");
+      const setToken = (t) => localStorage.setItem("vital_token", t);
+      const clearToken = () => localStorage.removeItem("vital_token");
+
+      async function api(path, opts = {}) {
+        const quiet = opts.quiet; // quiet = background polling: no error toasts
+        delete opts.quiet;
+        opts.headers = opts.headers || {};
+        const token = getToken();
+        if (token) {
+          opts.headers["Authorization"] = "Bearer " + token;
+        }
+        if (opts.body && typeof opts.body === "object" && !(opts.body instanceof FormData)) {
+          opts.headers["Content-Type"] = "application/json";
+          opts.body = JSON.stringify(opts.body);
+        }
+        let res;
+        try {
+          res = await fetch(API_BASE + path, opts);
+        } catch (netErr) {
+          if (!quiet) toast("Backend connection error: " + (netErr.message || "Failed to fetch"));
+          throw netErr;
+        }
+        if (res.status === 401) {
+          clearToken();
+          if (!$("#loginScreen").classList.contains("show")) toast("Session expired or unauthorized. Please sign in.");
+          $("#loginScreen").classList.add("show");
+          throw new Error("Unauthorized");
+        }
+        const contentType = res.headers.get("content-type") || "";
+        if (!res.ok) {
+          let msg = `Request failed (${res.status})`;
+          try {
+            if (contentType.includes("json")) {
+              const err = await res.json();
+              msg = err.detail || err.message || msg;
+            } else {
+              msg = await res.text();
+            }
+          } catch (e) {}
+          if (!quiet) toast(msg);
+          throw new Error(msg);
+        }
+        if (contentType.includes("json")) {
+          return await res.json();
+        }
+        return res;
+      }
+
+      let user = { name: "Care team", email: "caregiver@example.com" };
+      let fallActive = false;
+      let activeAlertId = null;
+      let selectedDay = 0;
+      let reportRecords = [];
+      let patients = [];
+      let logs = []; // logs of the day selected on the Activity page
+      let todayLogs = []; // today's logs (Overview + stats)
+      let cameraList = [];
+      let sysStatus = {};
+      let ws = null;
+      let wsPing = null;
+      let pollTimer = null;
+
+      function patientById(id) {
+        return patients.find((p) => p.id === id) || patients[0];
+      }
+
+      function photoMarkup(p) {
+        if (!p) return "🙂";
+        return p.photo
+          ? `<img src="${p.photo}" alt="">`
+          : p.gender === "Female"
+            ? "👵"
+            : p.gender === "Male"
+              ? "👴"
+              : "🙂";
+      }
+
+      function statusFor(p) {
+        if (!p) return "Monitoring";
+        return p.active ? "Monitoring" : "Paused";
+      }
+
+      function renderPatientRows() {
+        const host = $("#overviewPatients");
+        if (!patients.length) {
+          host.innerHTML =
+            '<div class="empty"><div class="empty-icon">♙</div>No patient profiles yet.<br><button class="btn primary" style="margin-top:12px" onclick="openPatientModal()">＋ Add your first patient</button></div>';
+          return;
+        }
+        host.innerHTML = patients
+          .slice(0, 4)
+          .map(
+            (p) =>
+              `<div class="patient-row"><div class="patient-photo">${photoMarkup(p)}</div><div class="patient-info"><strong>${escapeHtml(p.name)}</strong><span>${p.age || "—"} years · ${escapeHtml(p.gender || "Not specified")}</span></div><span class="status ${p.active ? "" : "off"}">${statusFor(p)}</span><div class="row-actions"><button class="mini-btn" onclick="startSurveillance('${p.id}')">View camera</button></div></div>`,
+          )
+          .join("");
+      }
+
+      function renderPatientGrid() {
+        const host = $("#patientGrid");
+        host.innerHTML = patients.length
+          ? patients
+              .map(
+                (p) =>
+                  `<div class="card patient-card"><div class="patient-card-top"><div class="patient-photo">${photoMarkup(p)}</div><div style="min-width:0"><h3>${escapeHtml(p.name)}</h3><p>${p.age || "—"} years · ${escapeHtml(p.gender || "Not specified")}</p><div style="margin-top:7px"><span class="status ${p.active ? "" : "off"}">${statusFor(p)}</span></div></div></div><div class="patient-meta"><div><span>Blood type</span><strong>${escapeHtml(p.blood || "Not specified")}</strong></div><div><span>Emergency contact</span><strong>${escapeHtml(p.phone || p.emergency_contact || "Not added")}</strong></div><div><span>Height</span><strong>${escapeHtml(p.height || "—")}${p.height ? " cm" : ""}</strong></div><div><span>Weight</span><strong>${escapeHtml(p.weight || "—")}${p.weight ? " kg" : ""}</strong></div></div><div style="font-size:11px;color:var(--muted);min-height:30px;margin-bottom:14px">${escapeHtml(p.diseases || p.notes || "No medical notes added.")}</div><div class="patient-card-actions"><button class="btn soft" onclick="startSurveillance('${p.id}')">◉ Surveillance</button><button class="btn" onclick="openReportFor('${p.id}')">▤ Report</button><button class="mini-btn" title="Edit patient" onclick="openEditPatientModal('${p.id}')">✎</button><button class="mini-btn" style="color:var(--danger);border-color:rgba(224,86,36,0.3)" title="Delete patient" onclick="deletePatientProfile('${p.id}')">✕</button></div></div>`,
+              )
+              .join("")
+          : '<div class="card empty" style="grid-column:1/-1"><div class="empty-icon">♙</div><strong>No patients added yet</strong><p>Add a profile to start building your care workspace.</p><button class="btn primary" onclick="openPatientModal()">＋ Add a patient</button></div>';
+      }
+
+      function renderTimeline() {
+        const host = $("#overviewTimeline");
+        const recent = todayLogs.slice(0, 4);
+        host.innerHTML = recent.length
+          ? recent
+              .map(
+                (l) =>
+                  `<div class="log-item"><div class="log-icon ${l.status === "Fall detected" ? "alert" : ""}">${l.status === "Fall detected" ? "⚠" : ACTIVITY_ICON[l.activity] || "◷"}</div><div class="log-copy"><strong>${escapeHtml(l.activity)}${l.status === "Fall detected" ? " · Fall alert" : ""}</strong><span>${escapeHtml(l.detail || "Activity recorded")} · ${escapeHtml(l.patientName || patientById(l.patientId)?.name || "Patient")}</span></div><div class="log-time">${escapeHtml(l.time)}</div></div>`,
+              )
+              .join("")
+          : '<div class="empty">No activity logs recorded today.</div>';
+      }
+
+      function renderLogs() {
+        const host = $("#logTableBody");
+        host.innerHTML = logs
+          .map(
+            (l) =>
+              `<tr><td><strong>${escapeHtml(l.activity)}</strong><small>${escapeHtml(l.detail || "Activity recorded")}</small></td><td>${escapeHtml(l.patientName || patientById(l.patientId)?.name || "Patient")}</td><td>${escapeHtml(l.time)}<small>${fmtDate(l.date)}</small></td><td>${escapeHtml(l.duration || "—")}</td><td><span class="status ${l.status === "Fall detected" ? "warn" : ""}">${escapeHtml(l.status || "Recorded")}</span></td></tr>`,
+          )
+          .join("");
+        $("#emptyLogs").classList.toggle("hidden", logs.length > 0);
+        $("#logTableBody").parentElement.style.display = logs.length ? "table" : "none";
+      }
+
+      function updateSelects() {
+        const options = patients
+          .map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`)
+          .join("");
+        ["#survPatient", "#reportPatient"].forEach((id) => {
+          const el = $(id),
+            prev = el.value;
+          el.innerHTML = options || '<option value="">No patients added</option>';
+          if (patients.some((p) => p.id === prev)) el.value = prev;
+        });
+      }
+
+      let localWebcamStream = null;
+      let browserFrameTimer = null;
+      let browserFrameBusy = false;
+      let activeBrowserCameraId = null;
+      let activeBrowserRoomId = null;
+      let monitoringPollTimer = null;
+      let isNightVision = false;
+      let camCanvasTimer = null;
+      let canvasTick = 0;
+
+      let streamKey = null;
+      let simPatient = null;
+
+      function startCameraStream(patient, force = false) {
+        const camId = patient?.room_id === "ROOM002" ? "CAM002" : "CAM001";
+        const key = camId + "|" + (patient?.id || "");
+        if (!force && key === streamKey) return; // already showing this camera
+        streamKey = key;
+        const streamUrl = `${API_BASE}/api/cameras/${camId}/stream?elder_id=${patient?.id || ""}&token=${encodeURIComponent(getToken() || "")}&_t=${Date.now()}`;
+        const img = $("#camLiveStream");
+        const canvas = $("#camCanvas");
+
+        // Show the simulated view until the real stream arrives, so the camera is never blank
+        startCanvasCameraSimulation(patient);
+
+        img.onerror = () => {
+          img.style.display = "none";
+          if (canvas) canvas.style.display = "block";
+          startCanvasCameraSimulation(simPatient);
+        };
+        img.onload = () => {
+          img.style.display = "block";
+          if (canvas) canvas.style.display = "none";
+          stopCanvasSimulation();
+        };
+        img.src = streamUrl;
+      }
+
+      function stopCameraStream() {
+        streamKey = null;
+        stopCanvasSimulation();
+        $("#camLiveStream").removeAttribute("src"); // closes the MJPEG connection
+        if (monitoringPollTimer && !localWebcamStream) {
+          clearInterval(monitoringPollTimer);
+          monitoringPollTimer = null;
+        }
+      }
+
+      function startCanvasCameraSimulation(patient) {
+        const canvas = $("#camCanvas");
+        if (!canvas) return;
+        simPatient = patient;
+        canvas.style.display = "block";
+        if (camCanvasTimer) return;
+
+        camCanvasTimer = setInterval(() => {
+          canvasTick++;
+          drawSimulationFrame(canvas, simPatient, canvasTick);
+        }, 80);
+      }
+
+      function stopCanvasSimulation() {
+        if (camCanvasTimer) {
+          clearInterval(camCanvasTimer);
+          camCanvasTimer = null;
+        }
+      }
+
+      function drawSimulationFrame(canvas, patient, tick) {
+        const ctx = canvas.getContext("2d");
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // Background room gradient
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, "#19201a");
+        grad.addColorStop(1, "#253026");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Floor perspective lines
+        ctx.strokeStyle = "#384539";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, h - 90);
+        ctx.lineTo(w, h - 90);
+        ctx.stroke();
+
+        for (let x = 0; x <= w; x += 70) {
+          ctx.beginPath();
+          ctx.moveTo(w / 2, h - 160);
+          ctx.lineTo(x, h);
+          ctx.stroke();
+        }
+
+        // Subdued CRT scanlines
+        ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+        for (let y = 0; y < h; y += 6) {
+          ctx.fillRect(0, y, w, 2);
+        }
+
+        // Center reticle
+        ctx.strokeStyle = "#4d634e";
+        ctx.beginPath();
+        ctx.moveTo(w / 2 - 15, h / 2);
+        ctx.lineTo(w / 2 + 15, h / 2);
+        ctx.moveTo(w / 2, h / 2 - 15);
+        ctx.lineTo(w / 2, h / 2 + 15);
+        ctx.stroke();
+
+        const isFall = Boolean(fallActive);
+        const elderName = patient ? patient.name : "Arthur Pendelton";
+        const activity = isFall ? "Falling" : (patient?.current_activity || "Resting");
+
+        // Bounding box
+        let bx, by, bw, bh;
+        if (isFall) {
+          bw = 180;
+          bh = 70;
+          bx = w / 2 - bw / 2;
+          by = h - 140;
+          ctx.strokeStyle = "#e63946";
+          ctx.fillStyle = "#e63946";
+        } else {
+          bw = 90;
+          bh = 150;
+          const sway = Math.sin(tick * 0.15) * 12;
+          bx = w / 2 - bw / 2 + sway;
+          by = h - 210;
+          ctx.strokeStyle = "#4ade80";
+          ctx.fillStyle = "#4ade80";
+        }
+
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bx, by, bw, bh);
+
+        // Corner brackets
+        const cl = 12;
+        ctx.beginPath();
+        ctx.moveTo(bx, by + cl); ctx.lineTo(bx, by); ctx.lineTo(bx + cl, by);
+        ctx.moveTo(bx + bw - cl, by); ctx.lineTo(bx + bw, by); ctx.lineTo(bx + bw, by + cl);
+        ctx.moveTo(bx, by + bh - cl); ctx.lineTo(bx, by + bh); ctx.lineTo(bx + cl, by + bh);
+        ctx.moveTo(bx + bw - cl, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.lineTo(bx + bw, by + bh - cl);
+        ctx.stroke();
+
+        // Label tag
+        ctx.font = "11px monospace";
+        const tag = isFall ? `⚠ FALL DETECTED: ${elderName}` : `ID: #104 | ${elderName} [${activity}]`;
+        const textW = ctx.measureText(tag).width;
+        ctx.fillRect(bx, by - 17, textW + 8, 17);
+        ctx.fillStyle = "#000";
+        ctx.fillText(tag, bx + 4, by - 4);
+
+        // HUD Header Bar
+        ctx.fillStyle = "rgba(18, 24, 19, 0.9)";
+        ctx.fillRect(0, 0, w, 32);
+
+        // Blinking record dot
+        if (Math.floor(tick / 5) % 2 === 0) {
+          ctx.fillStyle = "#ef4444";
+          ctx.beginPath();
+          ctx.arc(18, 16, 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = "#e2e8f0";
+        ctx.font = "11px sans-serif";
+        ctx.fillText(`NO SIGNAL - SIMULATED VIEW [${patient?.room_id === "ROOM002" ? "CAM002" : "CAM001"}]`, 30, 20);
+        ctx.fillText(`ROOM: ${patient?.room_id || "ROOM001"}`, 330, 20);
+        ctx.fillText(new Date().toLocaleTimeString("en-IN"), w - 90, 20);
+
+        // Bottom HUD Bar
+        ctx.fillStyle = "rgba(18, 24, 19, 0.9)";
+        ctx.fillRect(0, h - 24, w, 24);
+        ctx.fillStyle = "#86efac";
+        ctx.font = "10px monospace";
+        ctx.fillText("Backend stream unavailable - showing a placeholder", 12, h - 8);
+
+        if (isFall) {
+          ctx.fillStyle = "rgba(220, 38, 38, 0.92)";
+          ctx.fillRect(0, 36, w, 32);
+          ctx.fillStyle = "#fff";
+          ctx.font = "bold 12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("EMERGENCY: FALL DETECTED -- CARETAKER ATTENTION REQUIRED", w / 2, 57);
+          ctx.textAlign = "left";
+        }
+      }
+
+      async function updateSurveillance() {
+        const p = patientById($("#survPatient").value) || patients[0];
+        if (!p) {
+          $("#camPatientName").textContent = "No patient selected";
+          $("#survAge").textContent = "—";
+          $("#survBlood").textContent = "—";
+          $("#survPhone").textContent = "—";
+          $("#survMedical").textContent = "None added";
+          if (onSurveillancePage()) startCameraStream(null);
+          return;
+        }
+        $("#camPatientName").textContent = p.name;
+        $("#survAge").textContent = `${p.age || "—"} / ${escapeHtml(p.gender || "—")}`;
+        $("#survBlood").textContent = p.blood || "Not specified";
+        $("#survPhone").textContent = p.phone || p.emergency_contact || "Not added";
+        $("#survMedical").textContent = p.diseases || p.notes || "None added";
+
+        try {
+          const act = await api("/api/elders/" + p.id + "/activity/current", { quiet: true });
+          const actName = act?.activity || act?.current_activity;
+          if (act && actName) {
+            $("#detectedActivity").textContent = actName;
+            $("#lastUpdate").textContent = act.updated_at ? new Date(act.updated_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : "Just now";
+          }
+        } catch (e) {}
+
+        if (!onSurveillancePage()) return;
+        startCameraStream(p);
+        if (!monitoringPollTimer) {
+          monitoringPollTimer = setInterval(refreshLiveDetections, 1000);
+          refreshLiveDetections();
+        }
+      }
+
+      const onSurveillancePage = () => $("#page-surveillance").classList.contains("active");
+
+      function updateStats() {
+        $("#statPatients").textContent = patients.length;
+        $("#statMonitored").textContent = patients.filter(
+          (p) => p.active && cameraList.some((c) => c.room_id === p.room_id && c.status === "ONLINE"),
+        ).length;
+        $("#statActivities").textContent = todayLogs.length;
+        const falls = fallActive ? 1 : 0;
+        $("#statAlerts").textContent = falls;
+        $("#alertNote").textContent = falls
+          ? "Emergency: Review fall alert in activity logs"
+          : "No active alerts right now";
+        $("#alertNote").className = "stat-note " + (falls ? "" : "good");
+        $("#adminPatientCount").textContent =
+          `${patients.length} profile${patients.length === 1 ? "" : "s"} in workspace`;
+        $("#alertDot").style.display = falls ? "block" : "none";
+      }
+
+      function renderStatus() {
+        const offline = sysStatus.offline,
+          online = cameraList.filter((c) => c.status === "ONLINE").length;
+        $("#systemState").textContent = offline
+          ? "● Backend offline"
+          : sysStatus.model_loaded === false
+            ? "● AI model not loaded"
+            : "● System ready";
+        $("#monitoredNote").textContent = `● ${online} camera${online === 1 ? "" : "s"} online`;
+        $("#adminCamStatus").textContent = online ? "● Active" : "● Offline";
+        $("#adminCamStatus").classList.toggle("off", !online);
+        $("#adminCamNote").textContent = online
+          ? `${online} camera${online === 1 ? "" : "s"} streaming to the AI`
+          : "No camera streaming - start the browser webcam in Surveillance";
+        if (sysStatus.database) $("#adminDbNote").textContent = `Persistent ${sysStatus.database} database & PDF export`;
+        $("#adminDbStatus").textContent = offline ? "● Offline" : "● Ready";
+        $("#adminDbStatus").classList.toggle("off", Boolean(offline));
+        $("#smsNote").textContent = sysStatus.sms
+          ? "Fall alerts appear here instantly and are also texted to the patient's contact number when SMS notifications are on."
+          : "Fall alerts appear here instantly. SMS needs Twilio keys in backend/.env (not configured).";
+        updateStats();
+      }
+
+      function renderReports() {
+        const host = $("#reportList");
+        let list = [...reportRecords];
+        if (!list.length && patients.length) {
+          list = patients.slice(0, 2).map((p) => ({
+            id: "preview-" + p.id,
+            patient_id: p.id,
+            patient_name: p.name,
+            report_date: dateKey(today),
+            preview: true,
+          }));
+        }
+        host.innerHTML = list.length
+          ? list
+              .map((r) => {
+                const p = patientById(r.patient_id || r.patientId);
+                const rdate = r.report_date || r.date || dateKey(today);
+                const pname = r.patient_name || p?.name || "Patient";
+                return `<div class="card report-card"><div class="pdf-icon">PDF</div><div class="report-details"><strong>${escapeHtml(pname)} — Daily care summary</strong><span>${fmtDate(rdate)} · ${r.preview ? "Ready to generate" : `${r.activity_count ?? 0} activities · ${r.fall_count ? r.fall_count + " fall alert(s)" : "no falls"}`}</span></div><div style="display:flex;gap:6px;align-items:center"><button class="btn" onclick="printReport('${r.patient_id || p?.id}','${rdate}')">↓ Save as PDF</button>${!r.preview && r.id ? `<button class="mini-btn" style="color:var(--danger);border-color:rgba(224,86,36,0.3)" title="Delete report" onclick="deleteReportRecord('${r.id}')">✕</button>` : ""}</div></div>`;
+              })
+              .join("")
+          : '<div class="card empty" style="grid-column:1/-1"><div class="empty-icon">▤</div>No reports yet. Generate a daily summary to get started.</div>';
+      }
+
+      function renderAll() {
+        renderPatientRows();
+        renderPatientGrid();
+        renderTimeline();
+        renderLogs();
+        updateSelects();
+        updateSurveillance();
+        updateStats();
+        renderReports();
+      }
+
+      function navigate(page) {
+        $$(".section").forEach((s) =>
+          s.classList.toggle("active", s.id === "page-" + page),
+        );
+        $$(".nav button[data-page]").forEach((b) =>
+          b.classList.toggle("active", b.dataset.page === page),
+        );
+        $("#crumbName").textContent =
+          {
+            overview: "Overview",
+            patients: "My patients",
+            surveillance: "Surveillance",
+            activity: "Activity logs",
+            reports: "Reports",
+            admin: "Admin panel",
+          }[page] || page;
+        $("#sidebar").classList.remove("open");
+        if (page === "surveillance") updateSurveillance();
+        else if (!localWebcamStream) stopCameraStream();
+        if (page === "activity" || page === "overview") fetchActivities();
+        if (page === "reports") fetchReports();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function toast(msg) {
+        const t = $("#toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
+      }
+
+      let editingPatientId = null;
+
+      function openPatientModal() {
+        editingPatientId = null;
+        const heading = $("#patientModal .modal-head h2");
+        if (heading) heading.textContent = "Add a patient";
+        $("#patientModal").classList.add("open");
+        $("#pName").focus();
+      }
+      function openEditPatientModal(id) {
+        const p = patientById(id);
+        if (!p) return;
+        editingPatientId = id;
+        const heading = $("#patientModal .modal-head h2");
+        if (heading) heading.textContent = "Edit patient profile";
+        $("#pName").value = p.name || "";
+        $("#pAge").value = p.age || "";
+        $("#pGender").value = p.gender || "Not specified";
+        $("#pPhone").value = p.phone || p.emergency_contact || "";
+        $("#pBlood").value = p.blood || "Not specified";
+        $("#pHeight").value = p.height || "";
+        $("#pWeight").value = p.weight || "";
+        $("#pDiseases").value = p.diseases || p.notes || "";
+        $("#patientModal").classList.add("open");
+        $("#pName").focus();
+      }
+      function closePatientModal() {
+        editingPatientId = null;
+        $("#patientModal").classList.remove("open");
+        $("#patientForm").reset();
+      }
+      async function deletePatientProfile(id) {
+        const p = patientById(id);
+        const name = p ? p.name : id;
+        if (!confirm(`Are you sure you want to remove patient profile "${name}"?`)) return;
+        try {
+          await api(`/api/elders/${id}`, { method: "DELETE" });
+          toast(`Patient ${name} removed`);
+          await fetchPatients();
+        } catch (e) {
+          toast(e.message || "Failed to remove patient.");
+        }
+      }
+      async function deleteReportRecord(id) {
+        if (!confirm("Are you sure you want to delete this report?")) return;
+        try {
+          await api(`/api/reports/${id}`, { method: "DELETE" });
+          toast("Report deleted");
+          await fetchReports();
+        } catch (e) {
+          toast(e.message || "Failed to delete report.");
+        }
+      }
+      function startSurveillance(id) {
+        navigate("surveillance");
+        if (id) $("#survPatient").value = id;
+        updateSurveillance();
+      }
+      function openReportFor(id) {
+        navigate("reports");
+        openReportModal();
+        if (id) $("#reportPatient").value = id;
+      }
+      function openReportModal() {
+        $("#reportModal").classList.add("open");
+        $("#reportDate").value = dateKey(today);
+        updateSelects();
+      }
+
+      function playSoundChime() {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 720;
+          gain.gain.value = 0.12;
+          osc.start();
+          osc.stop(ctx.currentTime + 0.35);
+        } catch (e) {}
+      }
+
+      function displayActiveFall(alertData) {
+        if (!$("#prefFall").checked) return;
+        fallActive = true;
+        $("#fallSmsNote").textContent = !sysStatus.sms
+          ? "SMS delivery is not configured on the server."
+          : $("#prefSms").checked
+            ? "SMS alert sent to the patient's contact number."
+            : "SMS notifications are switched off in Admin settings.";
+        const p = patientById(alertData?.elder_id || $("#survPatient").value);
+        $("#fallDescription").textContent =
+          `A possible fall has been detected for ${p?.name || alertData?.elder_name || "the selected patient"}. Please check on them immediately.`;
+        $("#fallPhone").textContent = p?.phone || "Caretaker registered contact";
+        $("#fallOverlay").classList.add("show");
+        $("#safeBanner").style.background = "#fff0ee";
+        $("#safeBanner").style.borderColor = "#f1c9c5";
+        $("#safeBanner").style.color = "#b53636";
+        $("#safeBanner").innerHTML =
+          "⚠ <span><strong>Fall alert triggered</strong><br>Emergency fall alert recorded in database — check the patient.</span>";
+        updateStats();
+        if ($("#prefSound").checked) {
+          playSoundChime();
+        }
+      }
+
+      function clearFallOverlay() {
+        fallActive = false;
+        $("#fallOverlay").classList.remove("show");
+        $("#safeBanner").style.background = "";
+        $("#safeBanner").style.borderColor = "";
+        $("#safeBanner").style.color = "";
+        $("#safeBanner").innerHTML =
+          "✓ <span><strong>All clear</strong><br>Fall alert acknowledged. Monitoring continues.</span>";
+        updateStats();
+      }
+
+      async function printReport(patientId, date) {
+        const p = patientById(patientId);
+        if (!p) {
+          toast("Add a patient before generating a report.");
+          return;
+        }
+        const w = window.open("", "_blank"); // open first so the pop-up isn't blocked
+        if (!w) {
+          toast("Allow pop-ups to view the printable PDF report.");
+          return;
+        }
+        w.document.write("<p style='font:14px Arial;margin:30px'>Preparing report…</p>");
+        let dayLogs = [];
+        try {
+          const r = rangeOfDate(date);
+          const items = await api(
+            `/api/activities?elder_id=${encodeURIComponent(p.id)}&start=${encodeURIComponent(r.start)}&end=${encodeURIComponent(r.end)}&limit=5000`,
+          );
+          dayLogs = items.map(normLog).reverse(); // oldest first
+        } catch (e) {
+          w.close();
+          return;
+        }
+        const rows = dayLogs
+          .map(
+            (l) =>
+              `<tr><td>${escapeHtml(l.time)}</td><td>${escapeHtml(l.activity)}</td><td>${escapeHtml(l.detail || "—")}</td><td>${escapeHtml(l.duration || "—")}</td><td>${escapeHtml(l.status || "Recorded")}</td></tr>`,
+          )
+          .join("");
+        w.document.open();
+        w.document.write(
+          `<!doctype html><html><head><title>VITAL Daily Report - ${escapeHtml(p.name)}</title><style>body{font:13px Arial,sans-serif;color:#26342a;margin:35px}h1{margin-bottom:4px;color:#42654a}h2{font-size:15px;margin-top:26px}p,.muted{color:#667168;font-size:11px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#f3f6f0;padding:15px;border-radius:10px}.meta div{padding:4px}.meta b{display:block;font-size:10px;color:#7a847a;margin-bottom:3px;text-transform:uppercase}table{border-collapse:collapse;width:100%;margin-top:12px}th,td{text-align:left;padding:9px;border-bottom:1px solid #e0e6dc;font-size:11px}th{background:#f3f6f0}footer{margin-top:35px;font-size:10px;color:#889188}@media print{button{display:none}body{margin:15mm}}</style></head><body><div style="font-weight:800;letter-spacing:2px;color:#54785d">✳ VITAL</div><h1>Daily care report</h1><p>Generated on ${new Date().toLocaleString("en-IN")} · Report date: ${fmtDate(date)}</p><h2>Patient details</h2><div class="meta"><div><b>Full name</b>${escapeHtml(p.name)}</div><div><b>Age / gender</b>${p.age || "—"} / ${escapeHtml(p.gender || "Not specified")}</div><div><b>Blood type</b>${escapeHtml(p.blood || "Not specified")}</div><div><b>Height / weight</b>${escapeHtml(p.height || "—")} cm / ${escapeHtml(p.weight || "—")} kg</div><div><b>Caretaker contact</b>${escapeHtml(p.phone || p.emergency_contact || "Not provided")}</div><div><b>Medical notes</b>${escapeHtml(p.diseases || p.notes || "None provided")}</div></div><h2>Activity log</h2>${dayLogs.length ? `<table><thead><tr><th>Time</th><th>Activity</th><th>Details</th><th>Duration</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>` : "<p>No activity records available for the selected report date.</p>"}<h2>Care summary</h2><p>${dayLogs.length} activity record(s) recorded in persistent database. ${dayLogs.some((l) => l.status === "Fall detected") ? "A fall-alert event is recorded. Please review the event details." : "No fall-alert event is recorded in the displayed logs."} This report summarises recorded information and is backed by database audit storage.</p><footer>VITAL · Multi-Room Elderly Monitoring & Caretaker Alert System</footer><script>window.onload=()=>setTimeout(()=>window.print(),350)<\/script></body></html>`,
+        );
+        w.document.close();
+        toast("Report opened. Choose “Save to PDF” in the print dialog.");
+      }
+
+      function downloadBlob(filename, blob) {
+        const a = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function downloadText(name, text, type) {
+        const blob = new Blob([text], { type });
+        downloadBlob(name, blob);
+      }
+
+      // Backend API Synchronizers
+      async function fetchProfile() {
+        try {
+          const res = await api("/api/caretakers/me");
+          user.name = res.name || "Care team";
+          user.email = res.email || "caregiver@example.com";
+          updateUser();
+          if (res.preferences) {
+            if (res.preferences.prefFall !== undefined) $("#prefFall").checked = Boolean(res.preferences.prefFall);
+            if (res.preferences.prefSound !== undefined) $("#prefSound").checked = Boolean(res.preferences.prefSound);
+            if (res.preferences.prefSms !== undefined) $("#prefSms").checked = Boolean(res.preferences.prefSms);
+          }
+        } catch (e) {
+          console.error("fetchProfile error:", e);
+        }
+      }
+
+      async function fetchPatients() {
+        try {
+          patients = await api("/api/elders");
+          renderPatientRows();
+          renderPatientGrid();
+          updateSelects();
+          updateSurveillance();
+          updateStats();
+        } catch (e) {
+          console.error("fetchPatients error:", e);
+        }
+      }
+
+      async function loadDay(offset, quiet) {
+        const r = dayRange(offset);
+        const items = await api(`/api/activities?start=${encodeURIComponent(r.start)}&end=${encodeURIComponent(r.end)}`, { quiet });
+        return items.map(normLog);
+      }
+
+      async function fetchActivities(quiet = false) {
+        try {
+          logs = await loadDay(selectedDay, quiet);
+          todayLogs = selectedDay === 0 ? logs : await loadDay(0, quiet);
+          renderLogs();
+          renderTimeline();
+          updateStats();
+        } catch (e) {
+          if (!quiet) console.error("fetchActivities error:", e);
+        }
+      }
+
+      async function fetchAlerts(quiet = false) {
+        try {
+          const alerts = await api("/api/alerts", { quiet });
+          const active = alerts.find((a) => a.status === "ACTIVE" && !a.is_acknowledged);
+          if (active) {
+            if (active.id !== activeAlertId || !fallActive) {
+              activeAlertId = active.id;
+              displayActiveFall(active);
+            }
+          } else {
+            activeAlertId = null;
+            if (fallActive) clearFallOverlay();
+          }
+          updateStats();
+        } catch (e) {
+          if (!quiet) console.error("fetchAlerts error:", e);
+        }
+      }
+
+      async function fetchStatus() {
+        try {
+          [sysStatus, cameraList] = await Promise.all([
+            api("/api/system/status", { quiet: true }),
+            api("/api/cameras", { quiet: true }),
+          ]);
+        } catch (e) {
+          sysStatus = { offline: true };
+        }
+        renderStatus();
+      }
+
+      // Background refresh: new alerts, new activity log entries, camera/system status
+      function pollTick() {
+        if (!getToken() || document.hidden) return;
+        const page = $(".section.active")?.id;
+        fetchAlerts(true);
+        fetchStatus();
+        if (page === "page-activity" || page === "page-overview") fetchActivities(true);
+      }
+      function startPolling() {
+        if (!pollTimer) pollTimer = setInterval(pollTick, 4000);
+      }
+      function stopPolling() {
+        clearInterval(pollTimer);
+        pollTimer = null;
+      }
+
+      async function fetchReports() {
+        try {
+          reportRecords = await api("/api/reports");
+          renderReports();
+        } catch (e) {
+          console.error("fetchReports error:", e);
+        }
+      }
+
+      async function loadAllData() {
+        await fetchProfile();
+        await fetchStatus();
+        await fetchPatients();
+        await fetchActivities();
+        await fetchAlerts();
+        await fetchReports();
+        connectWebSocket();
+        startPolling();
+      }
+
+      function connectWebSocket() {
+        const token = getToken();
+        if (!token) return;
+        try {
+          if (ws) {
+            ws.onclose = null;
+            ws.close();
+          }
+          const wsUrl = (API_BASE.replace(/^http/, "ws")) + "/ws/notifications?token=" + token;
+          ws = new WebSocket(wsUrl);
+          clearInterval(wsPing);
+          ws.onopen = () => {
+            wsPing = setInterval(() => ws && ws.readyState === 1 && ws.send("ping"), 25000);
+          };
+          ws.onmessage = (event) => {
+            try {
+              const payload = JSON.parse(event.data);
+              if (payload.event === "alert") {
+                const alertData = payload.data?.alert || payload.alert;
+                if (alertData) {
+                  activeAlertId = alertData.id;
+                  displayActiveFall(alertData);
+                  fetchActivities(true);
+                }
+              }
+            } catch (e) {}
+          };
+          ws.onerror = () => {};
+          ws.onclose = () => {
+            setTimeout(() => {
+              if (getToken()) connectWebSocket();
+            }, 6000);
+          };
+        } catch (e) {
+          console.warn("WebSocket connection skipped:", e);
+        }
+      }
+
+      // DOM Event Listeners & Actions
+      $$(".nav button[data-page]").forEach((b) =>
+        b.addEventListener("click", () => navigate(b.dataset.page)),
+      );
+      $$("[data-goto]").forEach((b) =>
+        b.addEventListener("click", () => navigate(b.dataset.goto)),
+      );
+
+      $("#addPatientTop").onclick = openPatientModal;
+      $("#addPatientPage").onclick = openPatientModal;
+      $("#closeModal").onclick = closePatientModal;
+      $("#cancelPatient").onclick = closePatientModal;
+      $("#patientModal").addEventListener("click", (e) => {
+        if (e.target.id === "patientModal") closePatientModal();
+      });
+
+      $("#patientForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const submitBtn = $("#patientForm button[type='submit']");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Saving to database...";
+
+        try {
+          const file = $("#pPhoto").files[0];
+          let photo = "";
+          if (file) {
+            if (file.size > 1500000) {
+              toast("Please choose an image smaller than 1.5 MB.");
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Save patient profile";
+              return;
+            }
+            photo = await new Promise((res, rej) => {
+              const r = new FileReader();
+              r.onload = () => res(r.result);
+              r.onerror = rej;
+              r.readAsDataURL(file);
+            });
+          }
+
+          const payload = {
+            name: $("#pName").value.trim(),
+            age: Number($("#pAge").value),
+            gender: $("#pGender").value,
+            phone: $("#pPhone").value.trim(),
+            emergency_contact: $("#pPhone").value.trim(),
+            blood: $("#pBlood").value,
+            height: $("#pHeight").value,
+            weight: $("#pWeight").value,
+            diseases: $("#pDiseases").value.trim(),
+            notes: $("#pDiseases").value.trim(),
+            active: true,
+          };
+          if (photo || !editingPatientId) {
+            payload.photo = photo;
+          }
+
+          if (editingPatientId) {
+            await api(`/api/elders/${editingPatientId}`, { method: "PATCH", body: payload });
+            toast("Patient profile updated in database!");
+          } else {
+            await api("/api/elders", { method: "POST", body: payload });
+            toast("Patient profile saved to database!");
+          }
+          closePatientModal();
+          await fetchPatients();
+          navigate("patients");
+        } catch (err) {
+          toast(err.message || "Failed to create patient.");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Save patient profile";
+        }
+      });
+
+      $("#survPatient").addEventListener("change", updateSurveillance);
+
+      $("#demoFallBtn").onclick = async () => {
+        const elderId = $("#survPatient").value;
+        try {
+          toast("Triggering emergency fall alert in database...");
+          const res = await api("/api/alerts/test", {
+            method: "POST",
+            body: { elder_id: elderId },
+          });
+          activeAlertId = res.id;
+          displayActiveFall(res);
+          await fetchActivities();
+          toast("Fall alert recorded in persistent database.");
+        } catch (e) {
+          toast(e.message || "Could not trigger fall alert.");
+        }
+      };
+
+      $("#ackFall").onclick = async () => {
+        try {
+          if (activeAlertId) {
+            await api("/api/alerts/" + activeAlertId + "/acknowledge", { method: "PATCH" });
+          }
+          clearFallOverlay();
+          await fetchAlerts();
+          await fetchActivities();
+          toast("Alert acknowledged and stored in database.");
+        } catch (e) {
+          toast(e.message || "Failed to acknowledge alert.");
+        }
+      };
+
+      $("#dismissFall").onclick = async () => {
+        try {
+          if (activeAlertId) {
+            await api("/api/alerts/" + activeAlertId + "/acknowledge", { method: "PATCH" });
+          }
+          clearFallOverlay();
+          await fetchAlerts();
+          toast("Alert dismissed.");
+        } catch (e) {
+          clearFallOverlay();
+        }
+      };
+
+      async function resolveCameraForRoom(roomId) {
+        const cameras = await api("/api/cameras");
+        const camera = cameras.find((item) => item.room_id === roomId);
+        if (!camera) throw new Error("No camera is configured for this room.");
+        return camera;
+      }
+
+      async function sendBrowserFrame() {
+        if (!localWebcamStream || browserFrameBusy || !activeBrowserCameraId) return;
+        const video = $("#camWebcamVideo");
+        if (!video || video.readyState < 2 || !video.videoWidth) return;
+        browserFrameBusy = true;
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.min(video.videoWidth, 960);
+          canvas.height = Math.round(canvas.width * video.videoHeight / video.videoWidth);
+          canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+          const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.78));
+          if (!blob) return;
+          const response = await fetch(`${API_BASE}/api/cameras/${activeBrowserCameraId}/frame?elder_id=${encodeURIComponent($("#survPatient").value || "")}`, {
+            method: "POST",
+            headers: { Authorization: "Bearer " + getToken(), "Content-Type": "image/jpeg" },
+            body: blob,
+          });
+          if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.detail || `Frame upload failed (${response.status})`);
+          }
+        } catch (error) {
+          console.error("Browser webcam frame upload failed:", error);
+          $("#detectedActivity").textContent = "Camera upload error";
+        } finally {
+          browserFrameBusy = false;
+        }
+      }
+
+      async function refreshLiveDetections() {
+        const roomId = activeBrowserRoomId || (patientById($("#survPatient")?.value) || patients[0])?.room_id || "ROOM001";
+        if (!roomId || !getToken()) return;
+        try {
+          const [tracking, status] = await Promise.all([
+            api(`/api/rooms/${roomId}/tracking`, { quiet: true }),
+            api(`/api/rooms/${roomId}/monitoring/status`, { quiet: true }),
+          ]);
+          const tracks = tracking.active_tracks || [];
+          if (status.last_error) {
+            $("#detectedActivity").textContent = "AI error: " + status.last_error;
+          } else if (!status.model_available) {
+            $("#detectedActivity").textContent = "YOLO model unavailable — check backend setup";
+          } else if (tracks.length) {
+            const summary = tracks.map((item) => `${item.last_activity || "Person"} (${item.tracking_id})`).join(", ");
+            $("#detectedActivity").textContent = summary;
+            $("#lastUpdate").textContent = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+          } else if (status.is_active) {
+            $("#detectedActivity").textContent = status.inference_count
+              ? `No activity detected · ${status.inference_count} frames analysed`
+              : "Monitoring — waiting for webcam frames";
+          }
+          const fps = Number(status.fps || 0).toFixed(1);
+          $("#monState").textContent = status.is_active ? "● Monitoring" : "● Ready (no camera streaming)";
+          $("#camLivePill").textContent = status.is_active
+            ? `● YOLO ACTIVE · ${fps} FPS · ${status.latest_detection_count || 0} DET`
+            : "● NO CAMERA · DEMO VIEW";
+          $("#camResolution").textContent = status.is_active ? `${fps} FPS` : "—";
+        } catch (error) {
+          console.warn("Live detection refresh failed:", error);
+        }
+      }
+
+      function stopBrowserFrameUpload() {
+        if (browserFrameTimer) clearInterval(browserFrameTimer);
+        browserFrameTimer = null;
+        if (monitoringPollTimer) clearInterval(monitoringPollTimer);
+        monitoringPollTimer = null;
+      }
+
+      $("#webcamToggleBtn").onclick = async () => {
+        const video = $("#camWebcamVideo");
+        const streamImg = $("#camLiveStream");
+        const canvas = $("#camCanvas");
+        const livePill = $("#camLivePill");
+
+        if (localWebcamStream) {
+          stopBrowserFrameUpload();
+          localWebcamStream.getTracks().forEach((track) => track.stop());
+          localWebcamStream = null;
+          video.srcObject = null;
+          video.style.display = "none";
+          streamImg.style.display = "block";
+          livePill.textContent = "● LIVE FEED";
+          livePill.style.background = "#c3443f";
+          $("#webcamToggleBtn").textContent = "📹 Webcam";
+          if (activeBrowserRoomId) {
+            try { await api(`/api/rooms/${activeBrowserRoomId}/monitoring/stop`, { method: "POST" }); } catch (e) { console.warn(e); }
+          }
+          activeBrowserCameraId = null;
+          activeBrowserRoomId = null;
+          toast("Webcam monitoring stopped.");
+          updateSurveillance();
+          return;
+        }
+
+        try {
+          const patient = patientById($("#survPatient").value) || patients[0];
+          if (!patient || !patient.room_id) throw new Error("Select a patient assigned to a room first.");
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error("Webcam access requires localhost or HTTPS and browser permission.");
+          }
+          const camera = await resolveCameraForRoom(patient.room_id);
+          await api(`/api/rooms/${patient.room_id}/monitoring/start`, {
+            method: "POST", body: { camera_source: "browser" },
+          });
+          activeBrowserCameraId = camera.id;
+          activeBrowserRoomId = patient.room_id;
+          localWebcamStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 640 }, height: { ideal: 360 } }, audio: false,
+          });
+          video.srcObject = localWebcamStream;
+          await video.play();
+          video.style.display = "none";
+          streamImg.style.display = "block";
+          startCameraStream(patient);
+          if (canvas) canvas.style.display = "none";
+          stopCanvasSimulation();
+          livePill.textContent = "● YOLO STARTING";
+          livePill.style.background = "#2563eb";
+          $("#webcamToggleBtn").textContent = "■ Stop AI Webcam";
+          browserFrameTimer = setInterval(sendBrowserFrame, 250);
+          monitoringPollTimer = setInterval(refreshLiveDetections, 1000);
+          toast("Webcam connected to backend. YOLO inference is starting.");
+        } catch (err) {
+          if (activeBrowserRoomId) {
+            try { await api(`/api/rooms/${activeBrowserRoomId}/monitoring/stop`, { method: "POST" }); } catch (stopError) { console.warn(stopError); }
+          }
+          if (localWebcamStream) localWebcamStream.getTracks().forEach((track) => track.stop());
+          localWebcamStream = null;
+          stopBrowserFrameUpload();
+          activeBrowserCameraId = null;
+          activeBrowserRoomId = null;
+          toast(err.message || "Could not start AI webcam monitoring.");
+        }
+      };
+
+      $("#nightVisionBtn").onclick = () => {
+        isNightVision = !isNightVision;
+        $("#camScene").classList.toggle("night-vision", isNightVision);
+        $("#nightVisionBtn").style.background = isNightVision ? "#4ade8026" : "";
+        $("#nightVisionBtn").style.borderColor = isNightVision ? "#4ade80" : "";
+        toast(isNightVision ? "Night vision (IR mode) enabled." : "Night vision disabled.");
+      };
+
+      $("#snapshotBtn").onclick = async () => {
+        toast("Capturing real-time camera snapshot...");
+        try {
+          if (localWebcamStream && $("#camWebcamVideo").style.display !== "none") {
+            const video = $("#camWebcamVideo");
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = video.videoWidth || 640;
+            tempCanvas.height = video.videoHeight || 360;
+            const ctx = tempCanvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+            tempCanvas.toBlob((blob) => {
+              downloadBlob("vital-webcam-snapshot-" + Date.now() + ".jpg", blob);
+              toast("Webcam snapshot saved and downloaded.");
+            }, "image/jpeg", 0.9);
+            return;
+          }
+
+          const token = getToken();
+          const p = patientById($("#survPatient").value);
+          const camId = p?.room_id === "ROOM002" ? "CAM002" : "CAM001";
+          const res = await fetch(`${API_BASE}/api/cameras/${camId}/snapshot?elder_id=${p?.id || ""}`, {
+            headers: token ? { Authorization: "Bearer " + token } : {},
+          });
+          if (!res.ok) throw new Error("Camera stream unreachable.");
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const img = $("#camSnapshotImg");
+          if (img) {
+            img.src = url;
+            img.style.display = "block";
+            setTimeout(() => { if (img) img.style.display = "none"; }, 3500);
+          }
+          downloadBlob("vital-camera-snapshot-" + Date.now() + ".jpg", blob);
+          toast("Camera snapshot saved and downloaded.");
+        } catch (e) {
+          toast(e.message || "Could not capture snapshot.");
+        }
+      };
+
+      $("#dayFilters").addEventListener("click", async (e) => {
+        const b = e.target.closest("[data-day]");
+        if (!b) return;
+        selectedDay = Number(b.dataset.day);
+        $$("#dayFilters .filter").forEach((x) =>
+          x.classList.toggle("active", x === b),
+        );
+        await fetchActivities();
+      });
+
+      $("#activityExport").onclick = () => {
+        if (!logs.length) {
+          toast("No activity logs available to export.");
+          return;
+        }
+        const rows = [
+          ["Date", "Patient", "Activity", "Details", "Time", "Duration", "Status"],
+          ...logs.map((l) => [
+            fmtDate(l.date),
+            l.patientName || patientById(l.patientId)?.name || "Patient",
+            l.activity,
+            l.detail,
+            l.time,
+            l.duration,
+            l.status,
+          ]),
+        ];
+        const csv = rows
+          .map((r) =>
+            r.map((v) => '"' + String(v ?? "").replace(/"/g, '""') + '"').join(","),
+          )
+          .join("\n");
+        downloadText("vital-activity-logs.csv", csv, "text/csv");
+        toast("Activity logs exported from database as CSV.");
+      };
+
+      $("#quickReport").onclick = openReportModal;
+      $("#generateReportPage").onclick = openReportModal;
+      $("#closeReport").onclick = () => $("#reportModal").classList.remove("open");
+      $("#cancelReport").onclick = () => $("#reportModal").classList.remove("open");
+      $("#reportModal").addEventListener("click", (e) => {
+        if (e.target.id === "reportModal") $("#reportModal").classList.remove("open");
+      });
+
+      $("#makeReport").onclick = async () => {
+        const id = $("#reportPatient").value;
+        const date = $("#reportDate").value;
+        if (!id) {
+          toast("Select a patient before generating a report.");
+          return;
+        }
+        if (!date) {
+          toast("Choose a report date.");
+          return;
+        }
+        try {
+          await api("/api/reports", {
+            method: "POST",
+            body: { patient_id: id, report_date: date, ...rangeOfDate(date) },
+          });
+          $("#reportModal").classList.remove("open");
+          await fetchReports();
+          printReport(id, date);
+          toast("Daily report generated and stored in database.");
+        } catch (e) {
+          toast(e.message || "Failed to generate report.");
+        }
+      };
+
+      $("#saveAccount").onclick = async () => {
+        const name = $("#adminName").value.trim() || "Care team";
+        const email = $("#adminEmail").value.trim() || "caregiver@example.com";
+        try {
+          const res = await api("/api/caretakers/me", {
+            method: "PATCH",
+            body: { name, email },
+          });
+          user.name = res.name;
+          user.email = res.email;
+          updateUser();
+          toast("Account details saved to database.");
+        } catch (e) {
+          toast(e.message || "Failed to update profile.");
+        }
+      };
+
+      function updateUser() {
+        $("#userName").textContent = user.name;
+        $("#userAvatar").textContent = user.name.trim().charAt(0).toUpperCase() || "A";
+        $("#firstName").textContent = user.name === "Care team" ? "there" : user.name.split(" ")[0];
+        $("#adminName").value = user.name;
+        $("#adminEmail").value = user.email;
+        $("#loginEmail").value = user.email;
+      }
+
+      $("#savePrefs").onclick = async () => {
+        const prefs = {
+          prefFall: $("#prefFall").checked,
+          prefSound: $("#prefSound").checked,
+          prefSms: $("#prefSms").checked,
+        };
+        try {
+          await api("/api/caretakers/me/preferences", {
+            method: "PUT",
+            body: prefs,
+          });
+          toast("Alert preferences saved to database.");
+        } catch (e) {
+          toast(e.message || "Failed to save preferences.");
+        }
+      };
+
+      $("#alertsBtn").onclick = () => navigate("activity");
+      $("#menuBtn").onclick = () => $("#sidebar").classList.toggle("open");
+
+      $("#logoutBtn").onclick = async () => {
+        if (localWebcamStream) await $("#webcamToggleBtn").onclick(); // stop webcam while still signed in
+        clearToken();
+        stopPolling();
+        stopCameraStream();
+        clearInterval(wsPing);
+        if (ws) {
+          ws.onclose = null;
+          ws.close();
+        }
+        $("#loginScreen").classList.add("show");
+        toast("Logged out. Please sign in.");
+      };
+
+      const handleLoginSuccess = async (res) => {
+        setToken(res.access_token);
+        if (res.caretaker) {
+          user.name = res.caretaker.name;
+          user.email = res.caretaker.email;
+          updateUser();
+        }
+        $("#loginScreen").classList.remove("show");
+        toast("Signed in to care workspace.");
+        await loadAllData();
+      };
+
+      $("#passwordLogin").onclick = async () => {
+        const email = $("#loginEmail").value.trim();
+        const password = $("#loginPassword").value;
+        if (!email || !email.includes("@")) {
+          toast("Please enter a valid email address.");
+          return;
+        }
+        try {
+          const res = await api("/api/caretakers/login", {
+            method: "POST",
+            body: { email, password: password || "password123" },
+          });
+          await handleLoginSuccess(res);
+        } catch (e) {
+          // api() already showed the reason (e.g. wrong password)
+        }
+      };
+
+      $("#googleLogin").onclick = async () => {
+        const email = $("#loginEmail").value.trim();
+        if (!email || !email.includes("@")) {
+          toast("Enter a valid email address.");
+          return;
+        }
+        try {
+          const res = await api("/api/caretakers/demo-login", {
+            method: "POST",
+            body: { email },
+          });
+          await handleLoginSuccess(res);
+        } catch (e) {
+          toast(e.message || "Demo sign in failed.");
+        }
+      };
+
+      $("#camTime").textContent = timeNow();
+      setInterval(() => ($("#camTime").textContent = timeNow()), 1000);
+
+      $("#todayLabel").textContent = today
+        .toLocaleDateString("en-IN", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        })
+        .toUpperCase();
+
+      const hour = today.getHours();
+      document.querySelector(".page-head h1").innerHTML =
+        (hour < 12
+          ? "Good morning"
+          : hour < 17
+            ? "Good afternoon"
+            : "Good evening") +
+        '<span id="greetingComma">,</span> <span id="firstName">there</span>.';
+
+      // Bootstrap Application
+      (async function initApp() {
+        const token = getToken();
+        if (token) {
+          try {
+            await loadAllData();
+          } catch (e) {
+            $("#loginScreen").classList.add("show");
+          }
+        } else {
+          // Attempt automatic demo sign in for caregiver@example.com for immediate out-of-the-box experience
+          try {
+            const res = await api("/api/caretakers/demo-login", {
+              method: "POST",
+              body: { email: "caregiver@example.com" },
+            });
+            await handleLoginSuccess(res);
+          } catch (e) {
+            $("#loginScreen").classList.add("show");
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
